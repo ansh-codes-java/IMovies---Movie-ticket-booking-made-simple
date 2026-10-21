@@ -4,7 +4,7 @@ import { favoriteService } from '../services/favoriteService';
 import MovieCard from '../components/movies/MovieCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { toast } from 'react-toastify';
-import { FiHeart, FiFilm } from 'react-icons/fi';
+import { FiHeart } from 'react-icons/fi';
 
 const Favorites = () => {
   const [movies, setMovies] = useState([]);

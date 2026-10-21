@@ -297,6 +297,18 @@ const EditMovieModal = ({ isOpen, movie, onClose, onSaved }) => {
                       />
                       <div
                         onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDragging(true);
+                        }}
+                        onDragLeave={() => setIsDragging(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDragging(false);
+                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            handleFileSelect(e.dataTransfer.files[0]);
+                          }
+                        }}
                         className="p-2 rounded text-center cursor-pointer"
                         style={{
                           border: isDragging ? '2px dashed #E50914' : '1px dashed #374151',

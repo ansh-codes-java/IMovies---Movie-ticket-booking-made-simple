@@ -13,7 +13,6 @@ import {
   FiInfo,
   FiX,
   FiChevronRight,
-  FiTag,
   FiCheck,
 } from 'react-icons/fi';
 
@@ -163,7 +162,7 @@ const SeatSelection = () => {
     try {
       await navigator.clipboard.writeText(url);
       toast.success('Seat map link copied to clipboard!');
-    } catch (err) {
+    } catch {
       toast.info(`Share link: ${url}`);
     }
   };
@@ -234,9 +233,9 @@ const SeatSelection = () => {
   const screen = show?.screenId || {};
 
   // Format Show Date (e.g. "Mon \n 19 Oct")
-  const dateObj = show.showDate ? new Date(show.showDate) : new Date();
-  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-  const dayAndMonth = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+  const dateObj = show.showDate ? new Date(show.showDate) : null;
+  const dayName = dateObj ? dateObj.toLocaleDateString('en-US', { weekday: 'short' }) : '';
+  const dayAndMonth = dateObj ? dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : '';
 
   // Sound/Screen format label
   const soundFormat = screen.name?.includes('Laser')

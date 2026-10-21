@@ -10,6 +10,7 @@ router.get('/dashboard', adminController.getDashboardStats);
 router.get('/bookings', adminController.getAllBookings);
 router.get('/users', adminController.getAllUsers);
 router.patch('/users/:userId/status', adminController.toggleUserStatus);
+router.patch('/users/:userId/role', adminController.updateUserRole);
 router.get('/revenue', adminController.getRevenueReport);
 router.patch('/reviews/:reviewId/status', adminController.moderateReview);
 

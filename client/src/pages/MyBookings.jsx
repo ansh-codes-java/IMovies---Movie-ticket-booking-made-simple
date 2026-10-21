@@ -4,7 +4,7 @@ import { bookingService } from '../services/bookingService';
 import DigitalTicket from '../components/booking/DigitalTicket';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { toast } from 'react-toastify';
-import { FiClock, FiFilm, FiCalendar, FiMapPin, FiXCircle, FiEye } from 'react-icons/fi';
+import { FiClock, FiCalendar, FiMapPin, FiXCircle, FiEye } from 'react-icons/fi';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);

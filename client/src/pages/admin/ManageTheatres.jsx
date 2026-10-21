@@ -16,7 +16,6 @@ import {
   FiInfo,
   FiMonitor,
   FiSearch,
-  FiCalendar,
 } from 'react-icons/fi';
 import { FaTheaterMasks } from 'react-icons/fa';
 
@@ -87,7 +86,7 @@ const ManageTheatres = () => {
   const handleToggleStatus = async (th) => {
     try {
       const newStatus = !th.isActive;
-      const res = await theatreService.updateTheatre(th._id, { isActive: newStatus });
+      await theatreService.updateTheatre(th._id, { isActive: newStatus });
       toast.success(`Theatre "${th.name}" ${newStatus ? 'activated' : 'deactivated'}`);
       setTheatres((prev) =>
         prev.map((t) => (t._id === th._id ? { ...t, isActive: newStatus } : t))
@@ -304,10 +303,7 @@ const ManageTheatres = () => {
           setSelectedTheatre(th);
           setEditModalOpen(true);
         }}
-        onAddScreen={(th) => {
-          setSelectedTheatre(th);
-          setAddScreenModalOpen(true);
-        }}
+        onAddScreen={handleOpenAddScreen}
       />
 
       {/* Add Screen directly for this theatre */}

@@ -8,6 +8,7 @@ const Payment = require('../models/Payment');
 const Review = require('../models/Review');
 const { ValidationError, NotFoundError, ForbiddenError } = require('../utils/errors');
 const { sendSuccess } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
 /**
  * Get Admin Dashboard Overview stats
@@ -215,6 +216,41 @@ const toggleUserStatus = async (req, res, next) => {
 };
 
 /**
+ * Update user role (e.g. promote USER to ADMIN or demote)
+ * PATCH /api/v1/admin/users/:userId/role
+ */
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (!['USER', 'ADMIN'].includes(role)) {
+      throw new ValidationError('Invalid role. Allowed values: USER, ADMIN');
+    }
+
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      throw new NotFoundError('User not found');
+    }
+
+    if (targetUser.role === 'ADMIN' && role === 'USER') {
+      const activeAdminCount = await User.countDocuments({ role: 'ADMIN', isActive: true });
+      if (activeAdminCount <= 1) {
+        throw new ForbiddenError('Cannot demote the last remaining administrator account');
+      }
+    }
+
+    targetUser.role = role;
+    await targetUser.save();
+
+    logger.info(`[Admin] User ${targetUser.email} role changed to ${role}`);
+    return sendSuccess(res, { user: targetUser }, `User role updated to ${role}`);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Get revenue report with breakdown
  * GET /api/v1/admin/revenue
  */
@@ -317,6 +353,7 @@ module.exports = {
   getAllBookings,
   getAllUsers,
   toggleUserStatus,
+  updateUserRole,
   getRevenueReport,
   moderateReview,
 };

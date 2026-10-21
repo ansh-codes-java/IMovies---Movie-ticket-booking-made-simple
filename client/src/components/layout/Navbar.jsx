@@ -14,6 +14,7 @@ import {
   FiClock,
   FiSearch,
   FiMonitor,
+  FiShield,
 } from 'react-icons/fi';
 import { FaTheaterMasks } from 'react-icons/fa';
 
@@ -115,6 +116,16 @@ const Navbar = () => {
           {/* ADMIN VIEW ICONS (Screenshots 2, 3, 4) */}
           {isAdmin ? (
             <>
+              {/* Admin Dashboard Badge */}
+              <Link
+                to="/admin"
+                className="btn btn-sm btn-danger fw-bold text-uppercase d-none d-sm-flex align-items-center gap-1 py-1 px-2"
+                style={{ fontSize: '0.75rem', letterSpacing: '0.05em', borderRadius: '4px' }}
+                title="Admin Control Dashboard"
+              >
+                <FiShield /> Admin Suite
+              </Link>
+
               {/* Admin Shows */}
               <Link
                 to="/admin/shows"

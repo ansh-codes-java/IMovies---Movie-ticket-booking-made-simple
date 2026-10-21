@@ -24,15 +24,16 @@ const AddMovie = () => {
   const [certification, setCertification] = useState('UA');
   const [language, setLanguage] = useState('Telugu');
   const [trailerUrl, setTrailerUrl] = useState('');
+  const [backdropUrl, setBackdropUrl] = useState('');
 
   // Poster state: Support both Device Upload and Web URL
   const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
   const [posterFile, setPosterFile] = useState(null);
   const [posterUrl, setPosterUrl] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [previewError, setPreviewError] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [backdropUrl, setBackdropUrl] = useState('');
   const [cast, setCast] = useState('');
   const [director, setDirector] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -70,6 +71,7 @@ const AddMovie = () => {
     const objectUrl = URL.createObjectURL(file);
     setPosterFile(file);
     setPreviewUrl(objectUrl);
+    setPreviewError(false);
   };
 
   const handleFileInputChange = (e) => {
@@ -105,6 +107,7 @@ const AddMovie = () => {
     }
     setPosterFile(null);
     setPreviewUrl(uploadMode === 'url' ? posterUrl : '');
+    setPreviewError(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -193,7 +196,7 @@ const AddMovie = () => {
           border: '1px solid var(--color-border)',
         }}
       >
-        {/* Poster preview box with red border on top matching Screenshot 4 */}
+        {/* Poster preview box with red border on top */}
         <div className="text-center mb-4">
           <div
             className="d-inline-flex flex-column align-items-center justify-content-center rounded overflow-hidden shadow-sm position-relative"
@@ -204,26 +207,28 @@ const AddMovie = () => {
               backgroundColor: '#08090D',
             }}
           >
-            {activePosterDisplay ? (
+            {activePosterDisplay && !previewError ? (
               <img
                 src={activePosterDisplay}
                 alt="Poster Preview"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
+                onError={() => setPreviewError(true)}
               />
             ) : (
               <div className="text-muted small text-center p-2">
                 <FiImage size={30} className="text-danger mb-1" />
-                <div style={{ fontSize: '0.78rem', fontWeight: '500' }}>Poster Preview</div>
-                <div style={{ fontSize: '0.68rem', color: '#9CA3AF' }}>Choose image below</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: '500' }}>
+                  {previewError ? 'Invalid Image Link' : 'Poster Preview'}
+                </div>
+                <div style={{ fontSize: '0.68rem', color: '#9CA3AF' }}>
+                  {previewError ? 'Failed to load image' : 'Choose image below'}
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Title matching Screenshot 4: "Add Movie" (Movie in red) */}
+        {/* Title: "Add Movie" (Movie in red) */}
         <h1 className="section-title mb-4">
           Add <span className="text-accent">Movie</span>
         </h1>
@@ -319,7 +324,7 @@ const AddMovie = () => {
             </div>
 
             {/* Trailer URL */}
-            <div className="col-12">
+            <div className="col-12 col-md-6">
               <label className="cinema-label">Trailer URL (YouTube)</label>
               <input
                 type="url"
@@ -327,6 +332,18 @@ const AddMovie = () => {
                 placeholder="https://www.youtube.com/watch?v=..."
                 value={trailerUrl}
                 onChange={(e) => setTrailerUrl(e.target.value)}
+              />
+            </div>
+
+            {/* Backdrop URL */}
+            <div className="col-12 col-md-6">
+              <label className="cinema-label">Backdrop Banner URL (Optional)</label>
+              <input
+                type="url"
+                className="form-control cinema-input"
+                placeholder="https://images.unsplash.com/..."
+                value={backdropUrl}
+                onChange={(e) => setBackdropUrl(e.target.value)}
               />
             </div>
 
@@ -341,7 +358,10 @@ const AddMovie = () => {
                       uploadMode === 'file' ? 'btn-cinema' : 'btn-cinema-secondary'
                     }`}
                     style={{ fontSize: '0.78rem', padding: '3px 12px' }}
-                    onClick={() => setUploadMode('file')}
+                    onClick={() => {
+                      setUploadMode('file');
+                      setPreviewError(false);
+                    }}
                   >
                     <FiFolder className="me-1" /> From Device
                   </button>
@@ -353,6 +373,7 @@ const AddMovie = () => {
                     style={{ fontSize: '0.78rem', padding: '3px 12px' }}
                     onClick={() => {
                       setUploadMode('url');
+                      setPreviewError(false);
                       if (posterUrl) setPreviewUrl(posterUrl);
                     }}
                   >
@@ -448,6 +469,7 @@ const AddMovie = () => {
                     onChange={(e) => {
                       setPosterUrl(e.target.value);
                       setPreviewUrl(e.target.value);
+                      setPreviewError(false);
                     }}
                   />
                   <div className="text-muted small mt-1">
@@ -499,7 +521,7 @@ const AddMovie = () => {
             </div>
           </div>
 
-          {/* Submit Button matching Screenshot 4 */}
+          {/* Submit Button */}
           <div className="text-center mt-4">
             <button
               type="submit"

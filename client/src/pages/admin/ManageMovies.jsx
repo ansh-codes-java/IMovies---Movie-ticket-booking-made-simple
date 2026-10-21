@@ -232,11 +232,11 @@ const ManageMovies = () => {
       <div className="cinema-card p-3 mb-4" style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="row g-2 align-items-center">
           {/* Search */}
-          <div className="col-12 col-md-4">
+          <div className="col-12 col-md-3">
             <form onSubmit={handleSearchSubmit} className="d-flex gap-2">
               <input
                 type="text"
-                placeholder="Search movies by title, cast, genre..."
+                placeholder="Search movies..."
                 className="form-control cinema-input form-control-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -295,8 +295,22 @@ const ManageMovies = () => {
             </select>
           </div>
 
+          {/* Sort Filter */}
+          <div className="col-6 col-md-2">
+            <select
+              className="form-select cinema-select form-select-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="-createdAt">Newest First</option>
+              <option value="title">Title A-Z</option>
+              <option value="-title">Title Z-A</option>
+              <option value="-rating">Top Rated</option>
+            </select>
+          </div>
+
           {/* View Mode Toggle */}
-          <div className="col-6 col-md-2 d-flex justify-content-end gap-1">
+          <div className="col-6 col-md-1 d-flex justify-content-end gap-1">
             <button
               type="button"
               className={`btn btn-sm ${viewMode === 'grid' ? 'btn-cinema' : 'btn-cinema-secondary'}`}

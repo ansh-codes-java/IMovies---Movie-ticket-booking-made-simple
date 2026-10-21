@@ -3,7 +3,7 @@ const rateLimit = require('express-rate-limit');
 // Rate limiter for authentication routes (prevent brute force)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 25, // limit each IP to 25 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 25 : 150, // Generous limit in development
   standardHeaders: true,
   legacyHeaders: false,
   message: {

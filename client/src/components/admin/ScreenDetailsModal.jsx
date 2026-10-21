@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 
 const ScreenDetailsModal = ({ isOpen, screen, onClose, onOpenEdit }) => {
   const [details, setDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isOpen || !screen) return;
@@ -14,15 +13,12 @@ const ScreenDetailsModal = ({ isOpen, screen, onClose, onOpenEdit }) => {
     let isMounted = true;
     const fetchScreen = async () => {
       try {
-        setLoading(true);
         const res = await screenService.getScreenById(screen._id);
         if (isMounted) {
           setDetails(res.data);
         }
       } catch (err) {
         console.error('Failed to load screen details:', err);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     };
 

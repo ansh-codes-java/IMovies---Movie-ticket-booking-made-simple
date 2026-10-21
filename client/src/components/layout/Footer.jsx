@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const currentYear = new Date().getFullYear();
+
 const Footer = () => {
   return (
     <footer
@@ -41,7 +43,7 @@ const Footer = () => {
           </Link>
         </div>
         <div className="small" style={{ color: 'var(--color-text-muted)' }}>
-          &copy; {new Date().getFullYear()} IMovies. Designed & Developed by <strong style={{ color: 'var(--color-text)' }}>Aditya Vishwakarma</strong>.
+          &copy; {currentYear} IMovies. Designed & Developed by <strong style={{ color: 'var(--color-text)' }}>Ansh Tiwari</strong>.
         </div>
       </div>
     </footer>

@@ -6,6 +6,7 @@ const { authenticate } = require('../middleware/authenticate');
 router.use(authenticate);
 
 router.get('/', favoriteController.getFavorites);
+router.post('/toggle', favoriteController.toggleFavorite);
 router.post('/:movieId', favoriteController.addFavorite);
 router.delete('/:movieId', favoriteController.removeFavorite);
 

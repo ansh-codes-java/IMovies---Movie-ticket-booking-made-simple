@@ -12,13 +12,22 @@ import {
   FiStar,
   FiHeart,
   FiPlay,
-  FiCheck,
-  FiShare2,
   FiArrowLeft,
-  FiUser,
   FiTrash2,
   FiFilm,
 } from 'react-icons/fi';
+
+const FALLBACK_POSTER =
+  'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22450%22%20viewBox%3D%220%200%20300%20450%22%3E%3Crect%20fill%3D%22%23111827%22%20width%3D%22300%22%20height%3D%22450%22%2F%3E%3Ctext%20fill%3D%22%23E50914%22%20font-family%3D%22sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22bold%22%20x%3D%2250%25%22%20y%3D%2245%25%22%20text-anchor%3D%22middle%22%3EiMovies%3C%2Ftext%3E%3Ctext%20fill%3D%22%239CA3AF%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20x%3D%2250%25%22%20y%3D%2255%25%22%20text-anchor%3D%22middle%22%3ECinema%20Poster%3C%2Ftext%3E%3C%2Fsvg%3E';
+
+const getYouTubeEmbedUrl = (url) => {
+  if (!url) return 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return url;
+};
 
 const MovieDetails = () => {
   const { movieId } = useParams();
@@ -101,16 +110,24 @@ const MovieDetails = () => {
 
     try {
       setSubmittingReview(true);
-      await reviewService.submitReview(movieId, { rating, comment });
-      toast.success('Review submitted successfully!');
+      const res = await reviewService.submitReview(movieId, {
+        rating: Number(rating),
+        comment: comment.trim(),
+      });
+
+      toast.success(res.message || 'Review submitted successfully!');
       setComment('');
-      // Refresh reviews
-      const updated = await reviewService.getReviews(movieId);
-      setReviews(updated.data.reviews || []);
-      // Refresh movie rating
-      const updatedMovie = await movieService.getMovieById(movieId);
-      setMovie(updatedMovie.data.movie);
+      setRating(5);
+
+      // Refresh reviews and updated movie stats
+      const [refreshedMovie, refreshedReviews] = await Promise.all([
+        movieService.getMovieById(movieId),
+        reviewService.getReviews(movieId),
+      ]);
+      setMovie(refreshedMovie.data.movie);
+      setReviews(refreshedReviews.data.reviews || []);
     } catch (err) {
+      console.error('Failed to submit review:', err);
       toast.error(err.message || 'Failed to submit review');
     } finally {
       setSubmittingReview(false);
@@ -119,23 +136,29 @@ const MovieDetails = () => {
 
   const handleDeleteReview = async (reviewId) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
+
     try {
       await reviewService.deleteReview(reviewId);
-      toast.success('Review deleted');
+      toast.info('Review deleted');
       setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+
+      // Refresh movie rating stats
+      const refreshedMovie = await movieService.getMovieById(movieId);
+      setMovie(refreshedMovie.data.movie);
     } catch (err) {
       toast.error(err.message || 'Failed to delete review');
     }
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading movie details..." />;
+    return <LoadingSpinner message="Retrieving movie information..." />;
   }
 
   if (!movie) {
     return (
-      <div className="container py-5 text-center">
-        <h2>Movie not found</h2>
+      <div className="container py-5 text-center text-white">
+        <h2>Movie Not Found</h2>
+        <p className="text-muted">The requested cinema title does not exist or has been removed.</p>
         <Link to="/movies" className="btn btn-cinema mt-3">
           Back to Catalogue
         </Link>
@@ -179,7 +202,7 @@ const MovieDetails = () => {
           {/* Poster Column */}
           <div className="col-12 col-md-4 col-lg-3 text-center text-md-start">
             <img
-              src={movie.posterUrl}
+              src={movie.posterUrl || FALLBACK_POSTER}
               alt={movie.title}
               className="img-fluid rounded shadow-lg border"
               style={{
@@ -187,6 +210,9 @@ const MovieDetails = () => {
                 maxHeight: '420px',
                 width: '100%',
                 objectFit: 'cover',
+              }}
+              onError={(e) => {
+                e.target.src = FALLBACK_POSTER;
               }}
             />
 
@@ -213,19 +239,21 @@ const MovieDetails = () => {
           </div>
 
           {/* Details Column */}
-          <div className="col-12 col-md-8 col-lg-9">
+          <div className="col-12 col-md-8 col-lg-9 text-start">
             <div className="cinema-card p-4">
-              <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+              <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
-                  <h1 className="h2 fw-bold mb-1" style={{ color: 'var(--color-text)' }}>
+                  <h1 className="display-6 fw-bold mb-1" style={{ color: 'var(--color-text)' }}>
                     {movie.title}
                   </h1>
-                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted small mb-3">
+                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted small">
                     <span className="badge bg-secondary">{movie.certification || 'UA'}</span>
-                    <span>{movie.language}</span>
+                    <span>{movie.language || 'English'}</span>
+                    <span>•</span>
                     <span className="d-flex align-items-center gap-1">
-                      <FiClock /> {movie.runtimeMinutes} min
+                      <FiClock /> {movie.runtimeMinutes} mins
                     </span>
+                    <span>•</span>
                     <span className="d-flex align-items-center gap-1">
                       <FiCalendar /> {releaseFormatted}
                     </span>
@@ -282,6 +310,7 @@ const MovieDetails = () => {
                   <span className="text-muted small d-block">Status:</span>
                   <span className="text-capitalize fw-bold" style={{ color: 'var(--color-primary)' }}>
                     {movie.status === 'now_showing' ? 'Currently In Theatres' : 'Upcoming Release'}
+                    {hasActiveShows ? ' • Shows Available' : ''}
                   </span>
                 </div>
 
@@ -310,72 +339,71 @@ const MovieDetails = () => {
               </h5>
 
               <form onSubmit={handleReviewSubmit}>
-                <div className="row g-3">
-                  <div className="col-12 col-sm-3">
-                    <label className="cinema-label">Your Rating (1 to 5 Stars)</label>
-                    <select
-                      className="form-select cinema-select"
-                      value={rating}
-                      onChange={(e) => setRating(Number(e.target.value))}
-                    >
-                      <option value="5">⭐⭐⭐⭐⭐ (5 - Masterpiece)</option>
-                      <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
-                      <option value="3">⭐⭐⭐ (3 - Average)</option>
-                      <option value="2">⭐⭐ (2 - Below Average)</option>
-                      <option value="1">⭐ (1 - Poor)</option>
-                    </select>
-                  </div>
-
-                  <div className="col-12 col-sm-9">
-                    <label className="cinema-label">Your Comments</label>
-                    <div className="d-flex gap-2">
-                      <input
-                        type="text"
-                        className="form-control cinema-input flex-grow-1"
-                        placeholder="What did you think of the direction, action, and acting?"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        maxLength={1000}
-                        required
-                      />
+                <div className="mb-3 d-flex align-items-center gap-2">
+                  <label className="cinema-label mb-0">Your Rating:</label>
+                  <div className="d-flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
                       <button
-                        type="submit"
-                        disabled={submittingReview}
-                        className="btn btn-cinema px-4"
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className="btn p-1 text-warning border-0"
+                        style={{ backgroundColor: 'transparent' }}
+                        title={`${star} Star`}
                       >
-                        {submittingReview ? 'Posting...' : 'Submit'}
+                        <FiStar
+                          size={22}
+                          fill={star <= rating ? '#F59E0B' : 'none'}
+                          color="#F59E0B"
+                        />
                       </button>
-                    </div>
+                    ))}
                   </div>
+                  <span className="small text-muted">({rating} / 5 Stars)</span>
                 </div>
+
+                <div className="mb-3">
+                  <textarea
+                    className="form-control cinema-input"
+                    rows="3"
+                    placeholder="Share your thoughts about the movie plot, acting, visual effects..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="btn btn-cinema btn-sm"
+                >
+                  {submittingReview ? 'Submitting...' : 'Post Review'}
+                </button>
               </form>
             </div>
 
             {/* Reviews List */}
             {reviews.length === 0 ? (
-              <p className="text-muted small text-center py-4 mb-0">
-                No audience reviews yet. Be the first to share your thoughts!
+              <p className="text-muted text-center py-4 mb-0 small">
+                No audience reviews yet. Be the first to share your opinion!
               </p>
             ) : (
               <div className="d-flex flex-column gap-3">
                 {reviews.map((rev) => (
                   <div
                     key={rev._id}
-                    className="p-3 rounded border"
+                    className="p-3 rounded"
                     style={{
                       backgroundColor: 'var(--color-surface)',
-                      borderColor: 'var(--color-border)',
+                      border: '1px solid var(--color-border)',
                     }}
                   >
-                    <div className="d-flex justify-content-between align-items-center mb-1">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
                       <div className="d-flex align-items-center gap-2">
-                        <div
-                          className="rounded-circle d-flex align-items-center justify-content-center bg-secondary"
-                          style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}
-                        >
-                          <FiUser />
-                        </div>
-                        <strong className="small">{rev.userId?.username || 'Verified Moviegoer'}</strong>
+                        <strong className="text-white small">
+                          {rev.userId?.username || 'Cinema Fan'}
+                        </strong>
                         <span className="badge bg-warning text-dark small d-flex align-items-center gap-1">
                           <FiStar fill="#000" size={10} /> {rev.rating}/5
                         </span>
@@ -429,11 +457,7 @@ const MovieDetails = () => {
               <div className="modal-body p-3">
                 <div className="ratio ratio-16x9">
                   <iframe
-                    src={
-                      movie.trailerUrl?.includes('watch?v=')
-                        ? movie.trailerUrl.replace('watch?v=', 'embed/')
-                        : movie.trailerUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    }
+                    src={getYouTubeEmbedUrl(movie.trailerUrl)}
                     title={movie.title}
                     allowFullScreen
                     className="rounded"

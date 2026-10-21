@@ -11,6 +11,13 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('imovies_token') || '');
   const [loading, setLoading] = useState(true);
 
+  const logout = () => {
+    setUser(null);
+    setToken('');
+    localStorage.removeItem('imovies_token');
+    localStorage.removeItem('imovies_user');
+  };
+
   // Restore authenticated session on initial mount
   useEffect(() => {
     const restoreSession = async () => {
@@ -51,13 +58,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('imovies_token', authToken);
     localStorage.setItem('imovies_user', JSON.stringify(registeredUser));
     return registeredUser;
-  };
-
-  const logout = () => {
-    setUser(null);
-    setToken('');
-    localStorage.removeItem('imovies_token');
-    localStorage.removeItem('imovies_user');
   };
 
   const updateUser = (updatedUser) => {

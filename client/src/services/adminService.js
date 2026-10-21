@@ -17,6 +17,10 @@ export const adminService = {
     return await api.patch(`/admin/users/${userId}/status`, { isActive });
   },
 
+  updateUserRole: async (userId, role) => {
+    return await api.patch(`/admin/users/${userId}/role`, { role });
+  },
+
   getRevenueReport: async (params = {}) => {
     return await api.get('/admin/revenue', { params });
   },

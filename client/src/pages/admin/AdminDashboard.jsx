@@ -11,10 +11,7 @@ import { toast } from 'react-toastify';
 import {
   FiFilm,
   FiUsers,
-  FiDollarSign,
-  FiClock,
   FiPlus,
-  FiTrash2,
   FiTrendingUp,
   FiMonitor,
 } from 'react-icons/fi';

@@ -43,8 +43,8 @@ const seedData = async () => {
   });
 
   const demoUser = await User.create({
-    username: 'Aditya Vishwakarma',
-    email: 'aditya@example.com',
+    username: 'Ansh Tiwari',
+    email: 'ansh@example.com',
     passwordHash: userPasswordHash,
     phone: '+91 9123456789',
     role: 'USER',
@@ -340,7 +340,7 @@ const seedData = async () => {
   logger.info('====================================================');
   logger.info('✅ SEEDING COMPLETE!');
   logger.info('👥 Admin User: admin@imovies.com / Admin@123456');
-  logger.info('👤 Customer User: aditya@example.com / User@123456');
+  logger.info('👤 Customer User: ansh@example.com / User@123456');
   logger.info(`🎬 Movies Seeded: ${movies.length}`);
   logger.info(`🎭 Theatres Seeded: 3`);
   logger.info(`🎟️ Shows Seeded: ${shows.length}`);

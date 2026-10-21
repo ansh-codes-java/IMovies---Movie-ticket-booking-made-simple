@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'test';
 const { test, describe, before, after } = require('node:test');
 const assert = require('node:assert');
 const request = require('supertest');
@@ -59,7 +60,7 @@ describe('IMovies Full-Stack API Test Suite', () => {
       .post('/api/v1/auth/register')
       .send({
         username: 'Duplicate User',
-        email: 'aditya@example.com',
+        email: 'ansh@example.com',
         password: 'Password@123',
         confirmPassword: 'Password@123',
       });
@@ -73,7 +74,7 @@ describe('IMovies Full-Stack API Test Suite', () => {
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({
-        email: 'aditya@example.com',
+        email: 'ansh@example.com',
         password: 'WrongPassword123',
       });
 
@@ -86,7 +87,7 @@ describe('IMovies Full-Stack API Test Suite', () => {
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({
-        email: 'aditya@example.com',
+        email: 'ansh@example.com',
         password: 'User@123456',
       });
 

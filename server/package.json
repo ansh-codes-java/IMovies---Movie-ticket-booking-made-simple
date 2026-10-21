@@ -19,7 +19,7 @@
     "socketio",
     "razorpay"
   ],
-  "author": "Aditya Vishwakarma",
+  "author": "Ansh Tiwari",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

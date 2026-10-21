@@ -9,8 +9,7 @@ import ShowDetailsModal from '../../components/admin/ShowDetailsModal';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-toastify';
-import { FiPlus, FiArrowLeft, FiFilter, FiCalendar, FiSearch } from 'react-icons/fi';
-import { FaTheaterMasks } from 'react-icons/fa';
+import { FiPlus, FiArrowLeft } from 'react-icons/fi';
 
 const ManageShows = () => {
   const [shows, setShows] = useState([]);

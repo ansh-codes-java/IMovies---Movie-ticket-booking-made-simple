@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { theatreService } from '../../services/theatreService';
 import { screenService } from '../../services/screenService';
-import { FiX, FiMapPin, FiEdit2, FiMonitor, FiPlus, FiCheckCircle } from 'react-icons/fi';
+import { FiX, FiMapPin, FiEdit2, FiMonitor, FiPlus } from 'react-icons/fi';
 import { FaTheaterMasks } from 'react-icons/fa';
 
 const TheatreDetailsModal = ({ isOpen, theatre, onClose, onOpenEdit, onAddScreen }) => {

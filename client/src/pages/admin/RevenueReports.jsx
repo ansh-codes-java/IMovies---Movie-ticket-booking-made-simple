@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-toastify';
-import { FiArrowLeft, FiDollarSign, FiTrendingUp, FiFilter, FiCalendar } from 'react-icons/fi';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const RevenueReports = () => {
   const [report, setReport] = useState(null);

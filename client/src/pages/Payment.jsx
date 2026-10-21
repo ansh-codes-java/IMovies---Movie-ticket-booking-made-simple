@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import {
   FiClock,
   FiShield,
-  FiCreditCard,
   FiCheckCircle,
   FiXCircle,
   FiAlertTriangle,

@@ -20,26 +20,34 @@ const connectDB = async () => {
     // If in development or test, try MongoMemoryServer fallback for seamless out-of-the-box operation
     if (process.env.NODE_ENV !== 'production') {
       try {
-        const path = require('path');
-        const fs = require('fs');
-        const dataDir = path.resolve(__dirname, '../../.mongodb_data');
-        if (!fs.existsSync(dataDir)) {
-          fs.mkdirSync(dataDir, { recursive: true });
-        }
-
-        logger.info(`[MongoDB] Starting persistent database instance on disk at: ${dataDir}`);
+        const isTest = process.env.NODE_ENV === 'test';
         const { MongoMemoryServer } = require('mongodb-memory-server');
-        memoryServer = await MongoMemoryServer.create({
-          instance: {
+
+        let instanceConfig = { dbName: 'imovies_test' };
+        if (!isTest) {
+          const path = require('path');
+          const fs = require('fs');
+          const dataDir = path.resolve(__dirname, '../../.mongodb_data');
+          if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+          }
+          logger.info(`[MongoDB] Starting persistent database instance on disk at: ${dataDir}`);
+          instanceConfig = {
             dbName: 'imovies',
             dbPath: dataDir,
             storageEngine: 'wiredTiger',
-          },
+          };
+        } else {
+          logger.info('[MongoDB] Starting isolated in-memory test database...');
+        }
+
+        memoryServer = await MongoMemoryServer.create({
+          instance: instanceConfig,
         });
         const memoryUri = memoryServer.getUri();
         logger.info(`[MongoDB] Database process started at ${memoryUri}. Connecting Mongoose...`);
         await mongoose.connect(memoryUri);
-        logger.info('[MongoDB] Connected successfully to persistent database on disk.');
+        logger.info(`[MongoDB] Connected successfully to ${isTest ? 'in-memory test' : 'persistent'} database.`);
         return mongoose.connection;
       } catch (memErr) {
         logger.error(`[MongoDB] Failed to start database: ${memErr.message}`, memErr);

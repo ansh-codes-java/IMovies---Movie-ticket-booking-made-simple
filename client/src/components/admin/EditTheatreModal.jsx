@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { theatreService } from '../../services/theatreService';
 import { toast } from 'react-toastify';
-import { FiX, FiMapPin, FiCheck } from 'react-icons/fi';
+import { FiX, FiCheck } from 'react-icons/fi';
 import { FaTheaterMasks } from 'react-icons/fa';
 
 const EditTheatreModal = ({ isOpen, theatre, onClose, onSaved }) => {

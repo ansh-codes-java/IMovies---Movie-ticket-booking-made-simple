@@ -39,6 +39,22 @@ const ManageUsers = () => {
     }
   };
 
+  const handleToggleRole = async (userId, currentRole) => {
+    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
+    if (!window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
+      return;
+    }
+    try {
+      await adminService.updateUserRole(userId, newRole);
+      toast.success(`User role updated to ${newRole}`);
+      setUsers((prev) =>
+        prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u))
+      );
+    } catch (err) {
+      toast.error(err.message || 'Failed to update user role');
+    }
+  };
+
   return (
     <div className="admin-manage-users container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -109,14 +125,23 @@ const ManageUsers = () => {
                       </span>
                     </td>
                     <td className="p-3 text-end">
-                      {u.role !== 'ADMIN' && (
+                      <div className="d-flex justify-content-end gap-2">
                         <button
-                          onClick={() => handleToggleStatus(u._id, u.isActive)}
-                          className={`btn btn-sm ${u.isActive ? 'btn-cinema-danger' : 'btn-success'}`}
+                          onClick={() => handleToggleRole(u._id, u.role)}
+                          className={`btn btn-sm ${u.role === 'ADMIN' ? 'btn-outline-warning' : 'btn-outline-info'}`}
+                          title={u.role === 'ADMIN' ? 'Demote to User' : 'Promote to Admin'}
                         >
-                          {u.isActive ? 'Deactivate' : 'Activate'}
+                          {u.role === 'ADMIN' ? 'Make User' : 'Make Admin'}
                         </button>
-                      )}
+                        {u.role !== 'ADMIN' && (
+                          <button
+                            onClick={() => handleToggleStatus(u._id, u.isActive)}
+                            className={`btn btn-sm ${u.isActive ? 'btn-cinema-danger' : 'btn-success'}`}
+                          >
+                            {u.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

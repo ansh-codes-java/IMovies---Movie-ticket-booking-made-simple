@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { showService } from '../../services/showService';
-import { FiX, FiFilm, FiCalendar, FiClock, FiDollarSign, FiUsers, FiEdit2, FiCheckCircle } from 'react-icons/fi';
+import { FiX, FiFilm, FiCalendar, FiClock, FiDollarSign, FiUsers, FiEdit2 } from 'react-icons/fi';
 import { FaTheaterMasks } from 'react-icons/fa';
 
 const ShowDetailsModal = ({ isOpen, show, onClose, onOpenEdit }) => {
   const [details, setDetails] = useState(null);
   const [seatStats, setSeatStats] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isOpen || !show) return;
@@ -14,7 +13,6 @@ const ShowDetailsModal = ({ isOpen, show, onClose, onOpenEdit }) => {
     let isMounted = true;
     const fetchFullDetails = async () => {
       try {
-        setLoading(true);
         const [showRes, seatsRes] = await Promise.allSettled([
           showService.getShowById(show._id),
           showService.getShowSeats(show._id),
@@ -30,8 +28,6 @@ const ShowDetailsModal = ({ isOpen, show, onClose, onOpenEdit }) => {
         }
       } catch (err) {
         console.error('Failed to load show details:', err);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     };
 
@@ -163,22 +159,30 @@ const ShowDetailsModal = ({ isOpen, show, onClose, onOpenEdit }) => {
 
             {/* Occupancy stats */}
             <div className="row g-2 mt-2">
-              <div className="col-4">
+              <div className="col-3">
                 <div className="p-2 rounded text-center" style={{ backgroundColor: '#1F2937' }}>
-                  <div className="text-muted small" style={{ fontSize: '0.72rem' }}>Total Seats</div>
+                  <div className="text-muted small" style={{ fontSize: '0.7rem' }}>Total Seats</div>
                   <strong className="text-light">{totalSeats}</strong>
                 </div>
               </div>
-              <div className="col-4">
+              <div className="col-3">
                 <div className="p-2 rounded text-center" style={{ backgroundColor: '#1F2937' }}>
-                  <div className="text-muted small" style={{ fontSize: '0.72rem' }}>Booked</div>
+                  <div className="text-muted small" style={{ fontSize: '0.7rem' }}>Booked</div>
                   <strong className="text-danger">{bookedSeats}</strong>
                 </div>
               </div>
-              <div className="col-4">
+              <div className="col-3">
                 <div className="p-2 rounded text-center" style={{ backgroundColor: '#1F2937' }}>
-                  <div className="text-muted small" style={{ fontSize: '0.72rem' }}>Available</div>
+                  <div className="text-muted small" style={{ fontSize: '0.7rem' }}>Available</div>
                   <strong className="text-success">{availableSeats}</strong>
+                </div>
+              </div>
+              <div className="col-3">
+                <div className="p-2 rounded text-center" style={{ backgroundColor: '#1F2937' }}>
+                  <div className="text-muted small" style={{ fontSize: '0.7rem' }}>
+                    <FiUsers size={11} className="me-1" />Bookings
+                  </div>
+                  <strong className="text-info">{bookingsCount}</strong>
                 </div>
               </div>
             </div>

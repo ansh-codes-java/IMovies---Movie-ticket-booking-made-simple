@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { movieService } from '../services/movieService';
 import MovieCard from '../components/movies/MovieCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { FiSearch, FiFilter } from 'react-icons/fi';
+import { FiSearch } from 'react-icons/fi';
 
 const GENRES = ['All', 'Action', 'Drama', 'Comedy', 'Thriller', 'Horror', 'Fantasy', 'Sci-Fi', 'Historical'];
 const LANGUAGES = ['All', 'Telugu', 'Hindi', 'English', 'Kannada', 'Tamil'];

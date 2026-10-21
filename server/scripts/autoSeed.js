@@ -114,6 +114,12 @@ const upgradeToCinepolisAuditorium = async () => {
 
 const ensureDemoData = async () => {
   try {
+    // Ensure legacy aditya user record is migrated to Ansh Tiwari
+    await User.updateMany(
+      { $or: [{ email: 'aditya@example.com' }, { username: /aditya/i }, { _id: new mongoose.Types.ObjectId('65a000000000000000000002') }] },
+      { $set: { username: 'Ansh Tiwari', email: 'ansh@example.com' } }
+    );
+
     const movieCount = await Movie.countDocuments();
     if (movieCount > 0) {
       await upgradeToCinepolisAuditorium();
@@ -133,8 +139,8 @@ const ensureDemoData = async () => {
     const adminPasswordHash = await bcrypt.hash('Admin@123456', salt);
     const userPasswordHash = await bcrypt.hash('User@123456', salt);
 
-    // Create Admin and Standard Users with stable IDs
-    await User.create([
+    // Create Admin and Standard Users idempotently
+    const initialUsers = [
       {
         _id: new mongoose.Types.ObjectId('65a000000000000000000001'),
         username: 'admin',
@@ -145,8 +151,8 @@ const ensureDemoData = async () => {
       },
       {
         _id: new mongoose.Types.ObjectId('65a000000000000000000002'),
-        username: 'Aditya Vishwakarma',
-        email: 'aditya@example.com',
+        username: 'Ansh Tiwari',
+        email: 'ansh@example.com',
         passwordHash: userPasswordHash,
         phone: '+91 9123456789',
         role: 'USER',
@@ -159,7 +165,21 @@ const ensureDemoData = async () => {
         phone: '+91 9848022338',
         role: 'USER',
       },
-    ]);
+    ];
+
+    for (const u of initialUsers) {
+      await User.findOneAndUpdate(
+        { email: u.email },
+        { $set: { username: u.username, role: u.role, phone: u.phone }, $setOnInsert: { passwordHash: u.passwordHash } },
+        { upsert: true, new: true }
+      );
+    }
+
+    // Ensure legacy aditya user record is updated to Ansh Tiwari
+    await User.updateMany(
+      { $or: [{ email: 'aditya@example.com' }, { username: /aditya/i }, { _id: new mongoose.Types.ObjectId('65a000000000000000000002') }] },
+      { $set: { username: 'Ansh Tiwari', email: 'ansh@example.com' } }
+    );
 
     // Create Theatres & Screens
     const srinivasaTheatre = await Theatre.create({

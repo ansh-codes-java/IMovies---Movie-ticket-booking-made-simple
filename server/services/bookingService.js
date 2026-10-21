@@ -13,6 +13,40 @@ const TAX_RATE = 0.18; // 18% GST
 const CONVENIENCE_FEE = 20; // ₹20 flat fee
 
 /**
+ * Helper to parse time string (24h "14:30" or 12h "02:30 PM") into minutes from midnight
+ */
+const parseTimeToMinutes = (timeStr) => {
+  if (!timeStr || typeof timeStr !== 'string') return null;
+  const str = timeStr.trim();
+  const match12 = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match12) return null;
+
+  let hours = parseInt(match12[1], 10);
+  const minutes = parseInt(match12[2], 10);
+  const modifier = match12[3] ? match12[3].toUpperCase() : null;
+
+  if (modifier === 'PM' && hours < 12) hours += 12;
+  if (modifier === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+};
+
+/**
+ * Parse combined showDate ("YYYY-MM-DD") and startTime into valid JavaScript Date
+ */
+const parseShowDateTime = (showDate, startTime) => {
+  if (!showDate || !startTime) return null;
+  const mins = parseTimeToMinutes(startTime);
+  if (mins === null) {
+    const d = new Date(`${showDate}T${startTime}:00`);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const hours = Math.floor(mins / 60);
+  const minutes = mins % 60;
+  const pad = (n) => (n < 10 ? '0' + n : n);
+  return new Date(`${showDate}T${pad(hours)}:${pad(minutes)}:00`);
+};
+
+/**
  * Generate unique human-readable booking reference
  */
 const generateBookingReference = () => {
@@ -200,16 +234,18 @@ const cancelBooking = async (bookingId, userId, reason = 'User requested cancell
 
   // Check show date and cancellation cutoff (at least 2 hours before show)
   const show = booking.showId;
-  const showDateTime = new Date(`${show.showDate}T${show.startTime}:00`);
+  const showDateTime = parseShowDateTime(show.showDate, show.startTime);
   const now = new Date();
 
-  if (showDateTime <= now) {
+  if (showDateTime && showDateTime <= now) {
     throw new ValidationError('Cannot cancel tickets for a show that has already started or ended');
   }
 
-  const hoursRemaining = (showDateTime - now) / (1000 * 60 * 60);
-  if (hoursRemaining < 2) {
-    throw new ValidationError('Cancellations are only permitted up to 2 hours before showtime');
+  if (showDateTime) {
+    const hoursRemaining = (showDateTime - now) / (1000 * 60 * 60);
+    if (hoursRemaining < 2) {
+      throw new ValidationError('Cancellations are only permitted up to 2 hours before showtime');
+    }
   }
 
   // Update booking status
@@ -252,4 +288,5 @@ module.exports = {
   confirmBooking,
   cancelBooking,
   generateBookingReference,
+  parseShowDateTime,
 };

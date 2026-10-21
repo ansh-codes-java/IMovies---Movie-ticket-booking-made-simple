@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiCalendar, FiStar, FiTrash2, FiImage, FiEdit2, FiInfo } from 'react-icons/fi';
 
@@ -13,11 +13,8 @@ const MovieCard = ({
   onViewDetails,
   onEditPoster,
 }) => {
-  const [imgSrc, setImgSrc] = useState(movie.posterUrl || FALLBACK_POSTER);
-
-  useEffect(() => {
-    setImgSrc(movie.posterUrl || FALLBACK_POSTER);
-  }, [movie.posterUrl]);
+  const [imgError, setImgError] = useState(false);
+  const posterSrc = !imgError && movie.posterUrl ? movie.posterUrl : FALLBACK_POSTER;
 
   const formattedDate = movie.releaseDate
     ? new Date(movie.releaseDate).toLocaleDateString('en-US', {
@@ -110,11 +107,11 @@ const MovieCard = ({
       {/* Poster image */}
       <Link to={`/movies/${movie._id}`} className="movie-card-img-wrap text-decoration-none">
         <img
-          src={imgSrc}
+          src={posterSrc}
           alt={movie.title}
           className="movie-card-img"
           loading="lazy"
-          onError={() => setImgSrc(FALLBACK_POSTER)}
+          onError={() => setImgError(true)}
         />
         {movie.averageRating > 0 && (
           <div

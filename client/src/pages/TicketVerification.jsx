@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { bookingService } from '../services/bookingService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { FiCheckCircle, FiXCircle, FiFilm, FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 
 const TicketVerification = () => {
   const { bookingReference } = useParams();

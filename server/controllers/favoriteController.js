@@ -1,6 +1,6 @@
 const Favorite = require('../models/Favorite');
 const Movie = require('../models/Movie');
-const { NotFoundError, ConflictError } = require('../utils/errors');
+const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
 const { sendSuccess } = require('../utils/apiResponse');
 
 /**
@@ -22,6 +22,34 @@ const getFavorites = async (req, res, next) => {
       }));
 
     return sendSuccess(res, { movies });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Toggle favorite status
+ * POST /api/v1/favorites/toggle
+ */
+const toggleFavorite = async (req, res, next) => {
+  try {
+    const movieId = req.body.movieId || req.params.movieId;
+    if (!movieId) {
+      throw new ValidationError('Movie ID is required');
+    }
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      throw new NotFoundError('Movie not found');
+    }
+
+    const existing = await Favorite.findOne({ userId: req.user._id, movieId });
+    if (existing) {
+      await Favorite.findByIdAndDelete(existing._id);
+      return sendSuccess(res, { isFavorite: false }, 'Movie removed from favorites');
+    } else {
+      await Favorite.create({ userId: req.user._id, movieId });
+      return sendSuccess(res, { isFavorite: true }, 'Movie added to favorites', 201);
+    }
   } catch (err) {
     next(err);
   }
@@ -76,6 +104,7 @@ const removeFavorite = async (req, res, next) => {
 
 module.exports = {
   getFavorites,
+  toggleFavorite,
   addFavorite,
   removeFavorite,
 };

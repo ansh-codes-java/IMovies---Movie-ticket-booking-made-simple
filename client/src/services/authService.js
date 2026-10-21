@@ -13,6 +13,10 @@ export const authService = {
     return await api.get('/auth/me');
   },
 
+  getProfile: async () => {
+    return await api.get('/users/me');
+  },
+
   updateProfile: async (data) => {
     return await api.patch('/users/me', data);
   },

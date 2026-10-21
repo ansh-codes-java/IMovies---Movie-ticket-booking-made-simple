@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiAlertCircle, FiHome, FiFilm } from 'react-icons/fi';
+import { FiHome, FiFilm } from 'react-icons/fi';
 
 const NotFound = () => {
   return (

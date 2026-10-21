@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,30 +24,28 @@ const Profile = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await authService.getMe();
-        if (res.data?.user) {
-          updateUser(res.data.user);
-          setUsername(res.data.user.username);
-          setPhone(res.data.user.phone || '');
-        }
-
-        // Fetch stats from users/me
-        const profileRes = await authService.updateProfile({}); // reads profile
-        if (profileRes.data?.stats) {
-          setStats(profileRes.data.stats);
-        }
-      } catch (err) {
-        console.error('Error fetching profile stats:', err);
-      } finally {
-        setLoading(false);
+  const fetchProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await authService.getProfile();
+      if (res.data?.user) {
+        updateUser(res.data.user);
+        setUsername(res.data.user.username);
+        setPhone(res.data.user.phone || '');
       }
-    };
+      if (res.data?.stats) {
+        setStats(res.data.stats);
+      }
+    } catch (err) {
+      console.error('Error fetching profile stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [updateUser]);
+
+  useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
